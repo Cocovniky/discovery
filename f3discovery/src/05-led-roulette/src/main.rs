@@ -9,17 +9,16 @@ use volatile;
 fn main() -> ! {
     let (mut delay, mut leds): (Delay, LedArray) = aux5::init();
 
-    let mut half_period = 128_u16;
-    let v_half_period = volatile::Volatile::new(&mut half_period);
+    let mut tick_period = 64_u8;
+    let v_tick_period = volatile::Volatile::new(&mut tick_period);
 
+    let leds_cnt = leds.len();
     loop {
-        for i in 0..8 {
-            leds[i].on().ok();
-            delay.delay_ms(v_half_period.read());
-        }
-        for i in 0..8 {
-            leds[i].off().ok();
-            delay.delay_ms(v_half_period.read());
+        for i in (leds_cnt - 2)..(leds_cnt - 2 + leds_cnt) {
+            leds[i % leds_cnt].off().ok();
+            delay.delay_ms(v_tick_period.read());
+            leds[(i + 2) % leds_cnt].on().ok();
+            delay.delay_ms(v_tick_period.read());
         }
     }
 }
