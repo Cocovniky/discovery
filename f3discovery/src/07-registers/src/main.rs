@@ -8,7 +8,7 @@ use aux7::{entry, iprint, iprintln, ITM};
 
 #[entry]
 fn main() -> ! {
-    let (mut itm, _) = aux7::init();
+    let (mut itm, gpioe) = aux7::init();
 
     // A magic address!
     const GPIOE_BSRR: u32 = 0x4800_1018;
@@ -33,6 +33,22 @@ fn main() -> ! {
         ptr::write_volatile(GPIOE_BSRR as *mut u32, 1 << (11 + 16));
         iprint_odr(&mut itm);
     }
+
+    // Turn on the "North" LED (red)
+    gpioe.bsrr.write(|w| w.bs9().set_bit());
+    iprintln!(&mut itm.stim[0], "ODR = 0x{:04x}", gpioe.odr.read().bits());
+
+    // Turn on the "East" LED (green)
+    gpioe.bsrr.write(|w| w.bs11().set_bit());
+    iprintln!(&mut itm.stim[0], "ODR = 0x{:04x}", gpioe.odr.read().bits());
+
+    // Turn off the "North" LED
+    gpioe.bsrr.write(|w| w.br9().set_bit());
+    iprintln!(&mut itm.stim[0], "ODR = 0x{:04x}", gpioe.odr.read().bits());
+
+    // Turn off the "East" LED
+    gpioe.bsrr.write(|w| w.br11().set_bit());
+    iprintln!(&mut itm.stim[0], "ODR = 0x{:04x}", gpioe.odr.read().bits());
 
     unsafe {
         // Read from (write-only) GPIO BSRR register address
