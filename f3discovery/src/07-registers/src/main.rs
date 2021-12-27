@@ -1,6 +1,8 @@
 #![no_main]
 #![no_std]
 
+use core::ptr;
+
 #[allow(unused_imports)]
 use aux7::{entry, iprint, iprintln};
 
@@ -10,19 +12,19 @@ fn main() -> ! {
 
     unsafe {
         // A magic address!
-        const GPIOE_BSRR: u32 = 0x48001018;
+        const GPIOE_BSRR: u32 = 0x4800_1018;
 
         // Turn on the "North" LED (red)
-        *(GPIOE_BSRR as *mut u32) = 1 << 9;
+        ptr::write_volatile(GPIOE_BSRR as *mut u32, 1 << 9);
 
         // Turn on the "East" LED (green)
-        *(GPIOE_BSRR as *mut u32) = 1 << 11;
+        ptr::write_volatile(GPIOE_BSRR as *mut u32, 1 << 11);
 
         // Turn off the "North" LED
-        *(GPIOE_BSRR as *mut u32) = 1 << (9 + 16);
+        ptr::write_volatile(GPIOE_BSRR as *mut u32, 1 << (9 + 16));
 
         // Turn off the "East" LED
-        *(GPIOE_BSRR as *mut u32) = 1 << (11 + 16);
+        ptr::write_volatile(GPIOE_BSRR as *mut u32, 1 << (11 + 16));
     }
 
     loop {}
